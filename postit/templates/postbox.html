@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PostIT: {{postbox_name|upper}}</title>
+  {% load static %}
+  <link rel="icon" type="image/png" href="{% static 'postit-logo.png' %}"/>
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
   <!-- Font Awesome -->
@@ -51,6 +53,10 @@
   
         // Navigate to the constructed URL
         window.location.href = url;
+      });
+
+      $('.sub').click(function(){
+        window.location.href = "/subscribe/{{postbox_name}}";
       });
     });
   </script>
@@ -194,6 +200,25 @@
       font-size: 20px;
       margin-right: 10px;
     }
+
+    .sub{
+      margin-top: 20px;
+    }
+
+    .nav-postboxhead-container{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .nav-postboxhead{
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-decoration: underline;
+      text-align: center;
+      width: 100%;
+    }
   </style>
 </head>
 
@@ -208,12 +233,28 @@
           {% if has_verified_permission or user.is_superuser %}
           <a href="{% url 'createpostbox'%}" class="createpostbox"> <i class="fa-solid fa-circle-plus"></i>Create PostBox </a>
           {% endif %}
-        {%for postbox in postbox_list%}
-            <a href="{% url 'postbox' postbox_name=postbox %}" class="list-group-item list-group-item-action py-2 ripple"
-              aria-current="true">
-              <span class="nav-postbox">{{ postbox }}</span>
-            </a>
-        {%endfor%}
+          {% if user.is_authenticated %}
+          <div class="mb-4">
+            <div class="nav-postboxhead-container" aria-current="true">
+              <span class="nav-postboxhead">Subscribed PostBoxes</span>
+            </div>
+            {%for postbox in subscribed_postbox_list%}
+              <a href="{% url 'postbox' postbox_name=postbox %}" class="list-group-item list-group-item-action py-2 ripple"
+                aria-current="true">
+                <span class="nav-postbox">{{ postbox }}</span>
+              </a>
+            {%endfor%}
+          </div>
+          {% endif %}
+          <div class="nav-postboxhead-container mt-4" aria-current="true">
+            <span class="nav-postboxhead">All PostBoxes</span>
+          </div>
+          {%for postbox in postbox_list%}
+              <a href="{% url 'postbox' postbox_name=postbox %}" class="list-group-item list-group-item-action py-2 ripple"
+                aria-current="true">
+                <span class="nav-postbox">{{ postbox }}</span>
+              </a>
+          {%endfor%}
         </div>
       </div>
     </nav>
@@ -257,7 +298,6 @@
     </nav>
     <!-- Navbar -->
   </header>
-  <!--Main Navigation-->
 
 
 
@@ -272,6 +312,7 @@
         <div class="postbox-description">
           {{postbox_description}}
         </div>
+        <button class="btn btn-primary sub">Subscribe</button>
       </div>
 
     {% if showfrom %}
